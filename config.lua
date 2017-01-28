@@ -10,7 +10,7 @@ WELCOME_MSG = "Welcome to 100+ mods server. "
 GAME_MODE_MSG = "Enjoy your stay, and join us at discord."
 MODULES_ENABLED = "Mods enabled: ALL."
 
-WELCOME_MSG_TITLE = "OARC with Angel ores. But aliend are not removed properly from separate spawn locations."
+WELCOME_MSG_TITLE = "OARC with Angel ores."
 WELCOME_MSG1 = "Aliens not cleared for solo spawns."
 WELCOME_MSG2 = "Please join the main forces, and help us to launch satelite."
 
@@ -88,11 +88,11 @@ ENABLE_SPAWN_FORCE_GRASS = false
 
 -- Safe area has no aliens
 -- +/- this in x and y direction
-SAFE_AREA_TILE_DIST = CHUNK_SIZE*20
+SAFE_AREA_TILE_DIST = CHUNK_SIZE*12
 
 -- Warning area has reduced aliens
 -- +/- this in x and y direction
-WARNING_AREA_TILE_DIST = CHUNK_SIZE*40
+WARNING_AREA_TILE_DIST = CHUNK_SIZE*20
 
 -- 1 : X (spawners alive : spawners destroyed) in this area
 WARN_AREA_REDUCTION_RATIO = 15

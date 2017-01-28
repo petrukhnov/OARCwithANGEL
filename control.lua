@@ -166,11 +166,17 @@ script.on_event(defines.events.on_player_created, function(event)
 
 end)
 
+-- change spawnafter death
 script.on_event(defines.events.on_player_respawned, function(event)
-    if ENABLE_SEPARATE_SPAWNS then
+    local player = game.players[event.player_index]
+    
+    -- If a player has an active spawn, use it.
+    if (ENABLE_SEPARATE_SPAWNS) then
         SeparateSpawnsPlayerRespawned(event)
+        -- Display the respawn continue option
+        DisplayRespawnContinueOption(player)
     end
-
+    
 end)
 
 script.on_event(defines.events.on_player_left_game, function(event)

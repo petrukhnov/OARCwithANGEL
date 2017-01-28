@@ -237,6 +237,44 @@ function DisplaySpawnOptions(player)
 end
 
 
+function DisplayRespawnContinueOption(player)
+    
+    --prevent gui from loading twice
+    if (player.gui.center.respawn_continue_opts == nil) then
+        player.gui.center.add{name = "respawn_continue_opts",
+                            type = "frame",
+                            direction = "vertical",
+                            caption="Respawn Options"}
+    
+        local respawnGui = player.gui.center.respawn_continue_opts
+
+        respawnGui.style.maximal_width = 450
+        respawnGui.style.maximal_height = 550
+
+        respawnGui.add{name = "respawn_continue",
+                        type = "button",
+                        caption="Continue"}
+        respawnGui.add{name = "respawn_continue_lbl1", type = "label",
+                        caption="Continue at your current spawn location."}
+        respawnGui.add{name = "respawn_continue_spacer", type = "label",
+                        caption=" "}
+        ApplyStyle(respawnGui.respawn_continue_lbl1, my_label_style)
+        ApplyStyle(respawnGui.respawn_continue_spacer, my_label_style)
+
+        respawnGui.add{name = "respawn_change",
+                        type = "button",
+                        caption="Change Spawn"}
+        respawnGui.add{name = "respawn_change_lbl1", type = "label",
+                        caption="Allow you to change your spawn and team."}
+        respawnGui.add{name = "respawn_change_spacer", type = "label",
+                        caption=" "}
+        ApplyStyle(respawnGui.respawn_change_lbl1, my_label_style)
+        ApplyStyle(respawnGui.respawn_change_spacer, my_label_style)
+    
+    end
+end
+
+
 -- Handle the gui click of the spawn options
 function SpawnOptsGuiClick(event)
     if not (event and event.element and event.element.valid) then return end
@@ -250,10 +288,18 @@ function SpawnOptsGuiClick(event)
         (buttonClicked == "isolated_spawn_near") or
         (buttonClicked == "isolated_spawn_far") or
         (buttonClicked == "join_other_spawn") or
-        (buttonClicked == "join_other_spawn_check")) then
+        (buttonClicked == "join_other_spawn_check") or
+        (buttonClicked == "respawn_continue") or
+        (buttonClicked == "respawn_change")) then
 
         if (player.gui.center.spawn_opts ~= nil) then
             player.gui.center.spawn_opts.destroy()
+        end
+        if (player.gui.center.respawn_opts ~= nil) then
+            player.gui.center.respawn_opts.destroy()
+        end
+        if (player.gui.center.respawn_continue_opts ~= nil) then
+            player.gui.center.respawn_continue_opts.destroy()
         end
 
     end
@@ -261,6 +307,7 @@ function SpawnOptsGuiClick(event)
     if (buttonClicked == "default_spawn_btn") then
         CreateSpawnCtrlGui(player)
         ChangePlayerSpawn(player, player.force.get_spawn_position("nauvis"))
+        player.teleport(player.force.get_spawn_position("nauvis"))
         SendBroadcastMsg(player.name .. " joined the main force!")
         ChartArea(player.force, player.position, 4)
 
@@ -271,30 +318,18 @@ function SpawnOptsGuiClick(event)
         local newSpawn = {x=0,y=0}
 
         -- Re-used abandoned spawns...
-        if (#global.unusedSpawns >= 1) then
-            newSpawn = table.remove(global.unusedSpawns)
-            global.uniqueSpawns[player.name] = newSpawn
-            player.print("Sorry! You have been assigned to an abandoned base! This is done to keep map size small.")
-            ChangePlayerSpawn(player, newSpawn)
-            SendPlayerToSpawn(player)
-            GivePlayerStarterItems(player)
-            SendBroadcastMsg(player.name .. " joined an abandoned base!")
-        else
+        --if (#global.unusedSpawns >= 1) then
+        --    newSpawn = table.remove(global.unusedSpawns)
+        --    global.uniqueSpawns[player.name] = newSpawn
+        --    player.print("Sorry! You have been assigned to an abandoned base! This is done to keep map size small.")
+        --    ChangePlayerSpawn(player, newSpawn)
+        --    SendPlayerToSpawn(player)
+        --    SendBroadcastMsg(player.name .. " joined an abandoned base!")
+        --else
 
             -- Find coordinates of a good place to spawn
-            if (buttonClicked == "isolated_spawn_far") then
-                newSpawn = FindUngeneratedCoordinates(FAR_MIN_DIST,FAR_MAX_DIST)
-            elseif (buttonClicked == "isolated_spawn_near") then
-                newSpawn = FindUngeneratedCoordinates(NEAR_MIN_DIST,NEAR_MAX_DIST)
-            end
-
-            -- If that fails, find a random map edge in a rand direction.
-            if ((newSpawn.x == 0) and (newSpawn.x == 0)) then
-                newSpawn = FindMapEdge(GetRandomVector())
-                DebugPrint("Resorting to find map edge! x=" .. newSpawn.x .. ",y=" .. newSpawn.y)
-            end
-
-            -- Create that spawn in the global vars
+            newSpawn = getRandomSpawn(buttonClicked)
+                -- Create that spawn in the global vars
             ChangePlayerSpawn(player, newSpawn)
             
             -- Send the player there
@@ -308,7 +343,7 @@ function SpawnOptsGuiClick(event)
             player.print("PLEASE WAIT WHILE YOUR SPAWN POINT IS GENERATED!")
             player.print("PLEASE WAIT WHILE YOUR SPAWN POINT IS GENERATED!!")
             player.print("PLEASE WAIT WHILE YOUR SPAWN POINT IS GENERATED!!!")
-        end
+                --end
 
     elseif (buttonClicked == "join_other_spawn") then
         DisplaySharedSpawnOptions(player)
@@ -317,7 +352,32 @@ function SpawnOptsGuiClick(event)
     -- bases.
     elseif (buttonClicked == "join_other_spawn_check") then
         DisplaySpawnOptions(player)
+    elseif (buttonClicked == "respawn_continue") then
+
+    -- If changing your spawn behavior
+    elseif (buttonClicked == "respawn_change") then
+        DisplaySpawnOptions(player)
+
+    end    
+end
+
+function getRandomSpawn(buttonClicked)
+
+    local newSpawn = {x=0,y=0}
+    
+    if (buttonClicked == "isolated_spawn_far") then
+        newSpawn = FindUngeneratedCoordinates(FAR_MIN_DIST,FAR_MAX_DIST)
+    elseif (buttonClicked == "isolated_spawn_near") then
+        newSpawn = FindUngeneratedCoordinates(NEAR_MIN_DIST,NEAR_MAX_DIST)
     end
+
+    -- If that fails, find a random map edge in a rand direction.
+    if ((newSpawn.x == 0) and (newSpawn.x == 0)) then
+        newSpawn = FindMapEdge(GetRandomVector())
+        DebugPrint("Resorting to find map edge! x=" .. newSpawn.x .. ",y=" .. newSpawn.y)
+    end
+            
+    return newSpawn
 end
 
 
@@ -334,7 +394,6 @@ function DisplaySharedSpawnOptions(player)
     shGui.style.maximal_width = SPAWN_GUI_MAX_WIDTH
     shGui.style.maximal_height = SPAWN_GUI_MAX_HEIGHT
     shGui.horizontal_scroll_policy = "never"
-
 
     for spawnName,sharedSpawn in pairs(global.sharedSpawns) do
         if sharedSpawn.openAccess then
@@ -375,7 +434,6 @@ function SharedSpwnOptsGuiClick(event)
                 CreateSpawnCtrlGui(player)
                 ChangePlayerSpawn(player,sharedSpawn.position)
                 SendPlayerToSpawn(player)
-                GivePlayerStarterItems(player)
                 table.insert(sharedSpawn.players, player.name)
                 SendBroadcastMsg(player.name .. " joined " .. spawnName .. "'s base!")
                 if (player.gui.center.shared_spawn_opts ~= nil) then

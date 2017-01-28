@@ -1,6 +1,6 @@
 # OARC with angel ore support
 
-Based on http://github.com/Oarcinae/FactorioScenarioMultiplayer
+Based on http://github.com/Oarcinae/FactorioScenarioMultiplayerSpawn
 
 ## Differences from original
 
@@ -53,6 +53,8 @@ Cleanup code.
 Conver to mod (if possible).
 
 Cleanups solo starting areas from aliens.
+
+Add option to select other spawn after death.
 
 
 ## Credit
